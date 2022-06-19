@@ -1,0 +1,6 @@
+<a href="/auth">Login</a>
+
+<% if (user) { %>
+  <%= JSON.stringify(user) %>
+  <a href="/logout">Logout</a>
+<% } %>
