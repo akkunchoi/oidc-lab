@@ -1,4 +1,5 @@
 import express from 'express'
+import { MongoAdapter } from './adapters/mongodb';
 
 /* eslint-disable no-console */
 
@@ -34,8 +35,8 @@ let server: any;
 (async () => {
   let adapter;
   if (process.env.MONGODB_URI) {
-    adapter = require('./adapters/mongodb'); // eslint-disable-line global-require
-    await adapter.connect();
+    adapter = MongoAdapter;
+    await MongoAdapter.connect();
   }
 
   const prod = process.env.NODE_ENV === 'production';

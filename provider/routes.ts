@@ -6,6 +6,7 @@ const { inspect } = require('util');
 const isEmpty = require('lodash.isempty');
 const { urlencoded } = require('express'); // eslint-disable-line import/no-unresolved
 
+import { Provider, errors } from 'oidc-provider';
 import { Account } from './support/account'
 
 const body = urlencoded({ extended: false });
@@ -20,9 +21,7 @@ const debug = (obj) => querystring.stringify(Object.entries(obj).reduce((acc, [k
   encodeURIComponent(value) { return keys.has(value) ? `<strong>${value}</strong>` : value; },
 });
 
-export const routes = (app, provider) => {
-  const { constructor: { errors: { SessionNotFound } } } = provider;
-
+export const routes = (app, provider: Provider) => {
   app.use((req, res, next) => {
     const orig = res.render;
     // you'll probably want to use a full blown render engine capable of layouts
@@ -49,7 +48,7 @@ export const routes = (app, provider) => {
         uid, prompt, params, session,
       } = await provider.interactionDetails(req, res);
 
-      const client = await provider.Client.find(params.client_id);
+      const client = await provider.Client.find(String(params.client_id));
 
       switch (prompt.name) {
         case 'login': {
@@ -122,11 +121,11 @@ export const routes = (app, provider) => {
         // we're establishing a new grant
         grant = new provider.Grant({
           accountId,
-          clientId: params.client_id,
+          clientId: String(params.client_id),
         });
       }
 
-      if (details.missingOIDCScope) {
+      if (details.missingOIDCScope && Array.isArray(details.missingOIDCScope)) {
         grant.addOIDCScope(details.missingOIDCScope.join(' '));
       }
       if (details.missingOIDCClaims) {
@@ -168,7 +167,7 @@ export const routes = (app, provider) => {
   });
 
   app.use((err, req, res, next) => {
-    if (err instanceof SessionNotFound) {
+    if (err instanceof errors.SessionNotFound) {
       // handle interaction expired / session not found error
     }
     next(err);

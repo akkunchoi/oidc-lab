@@ -1,5 +1,5 @@
 import express from 'express';
-import { Issuer, Strategy } from 'openid-client';
+import { Issuer, Strategy, TokenSet } from 'openid-client';
 import path from 'path';
 require('ejs');
 const passport = require('passport');
@@ -64,11 +64,11 @@ passport.deserializeUser(function(id, done) {
   // passport settings
   app.use(passport.initialize());
   app.use(passport.session());
-  passport.use('oidc', new Strategy({ client, params }, (tokenset, userinfo, done) => {
+  passport.use('oidc', new Strategy({ client, params }, (tokenset: TokenSet, userinfo, done) => {
     console.log('tokenset', tokenset);
     console.log('access_token', tokenset.access_token);
     console.log('id_token', tokenset.id_token);
-    console.log('claims', tokenset.claims);
+    console.log('claims', tokenset.claims());
     console.log('userinfo', userinfo);
 
     return done(null, userinfo);
