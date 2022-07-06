@@ -8,7 +8,6 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 
 const app = express();
-const PORT = process.env.CLIENT_PORT || 3001;
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -44,10 +43,11 @@ passport.deserializeUser(function(id, done) {
 
 
   // oidc client settings
-  const issuer = await Issuer.discover('http://localhost:3000');
+  const { PORT = 3000, CLIENT_PORT = 3001, ISSUER = `http://localhost:${PORT}`, CLIENT_URI = `http://localhost:${CLIENT_PORT}`} = process.env;
+  const issuer = await Issuer.discover(ISSUER);
   console.log('Discovered issuer %s %O', issuer.issuer, issuer.metadata);
 
-  const redirecturis = ['http://localhost:3001/auth/cb'];
+  const redirecturis = [CLIENT_URI + '/auth/cb'];
   const client = new issuer.Client({
     client_id: 'client_id_sample',
     client_secret: 'client_secret_sample',
@@ -98,8 +98,8 @@ passport.deserializeUser(function(id, done) {
     session: true,
   }));
 
-  const server = app.listen(PORT, () => {
-    console.log(`client is listening on port ${PORT}`);
+  const server = app.listen(CLIENT_PORT, () => {
+    console.log(`client is listening on port ${CLIENT_PORT}`);
   });
 
 })();

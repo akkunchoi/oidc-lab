@@ -1,10 +1,12 @@
+const { PORT = 3000, CLIENT_PORT = 3001, ISSUER = `http://localhost:${PORT}`, CLIENT_URI = `http://localhost:${CLIENT_PORT}`} = process.env;
+
 export const configuration: any = {
   clients: [
     {
       client_id: 'client_id_sample',
       client_secret: 'client_secret_sample',
       grant_types: ['refresh_token', 'authorization_code'],
-      redirect_uris: ['http://localhost:3001/auth/cb'],
+      redirect_uris: [CLIENT_URI + '/auth/cb'],
     }
   ],
   interactions: {
