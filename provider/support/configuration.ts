@@ -7,7 +7,8 @@ export const configuration: Configuration = {
     {
       client_id: 'client_id_sample',
       client_secret: 'client_secret_sample',
-      grant_types: ['refresh_token', 'authorization_code'],
+      grant_types: ['authorization_code', 'refresh_token'],
+      response_types: ['code'],
       redirect_uris: [CLIENT_URI + '/auth/cb'],
     }
   ],
@@ -39,6 +40,11 @@ export const configuration: Configuration = {
         return true;
       }
     },
+  },
+  issueRefreshToken: async function issueRefreshToken(ctx, client, code) {
+    // default
+    //  return client.grantTypeAllowed('refresh_token') && code.scopes.has('offline_access');
+    return true;
   },
   jwks: {
     keys: [

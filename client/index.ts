@@ -66,8 +66,6 @@ passport.deserializeUser(function(id, done) {
   app.use(passport.session());
   passport.use('oidc', new Strategy({ client, params }, (tokenset: TokenSet, userinfo, done) => {
     console.log('tokenset', tokenset);
-    console.log('access_token', tokenset.access_token);
-    console.log('id_token', tokenset.id_token);
     console.log('claims', tokenset.claims());
     console.log('userinfo', userinfo);
 
