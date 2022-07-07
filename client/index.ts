@@ -1,5 +1,5 @@
 import express from 'express';
-import { Issuer, Strategy, TokenSet } from 'openid-client';
+import { AuthorizationParameters, Issuer, Strategy, TokenSet } from 'openid-client';
 import path from 'path';
 require('ejs');
 const passport = require('passport');
@@ -44,8 +44,20 @@ passport.deserializeUser(function(id, done) {
 
   // oidc client settings
   const { PORT = 3000, CLIENT_PORT = 3001, ISSUER = `http://localhost:${PORT}`, CLIENT_URI = `http://localhost:${CLIENT_PORT}`} = process.env;
-  const issuer = await Issuer.discover(ISSUER);
-  console.log('Discovered issuer %s %O', issuer.issuer, issuer.metadata);
+  const issuer = await Issuer.discover(ISSUER).catch((e) => {
+    console.warn('client discover error', e.toString())
+    // retry one more time
+    return Issuer.discover(ISSUER).catch((e) => {
+      console.warn('client discover error', e.toString())
+      return Issuer.discover(ISSUER).catch((e) => {
+        console.warn('client discover error', e.toString())
+        process.exit(1);
+      })
+    })
+  })
+  
+  console.log('Discovered issuer');
+  // console.log('Discovered issuer %s %O', issuer.issuer, issuer.metadata);
 
   const redirecturis = [CLIENT_URI + '/auth/cb'];
   const client = new issuer.Client({
@@ -57,8 +69,10 @@ passport.deserializeUser(function(id, done) {
     // token_endpoint_auth_method (default "client_secret_basic")
   }); // => Client  
 
-  const params = {
-    redirect_uri: redirecturis[0]
+  const params: AuthorizationParameters = {
+    redirect_uri: redirecturis[0],
+    state: 'state-' + new Date().getTime(),
+    nonce: 'nonce-' + new Date().getTime()
   };
 
   // passport settings
