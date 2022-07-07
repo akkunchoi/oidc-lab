@@ -1,6 +1,8 @@
+import { Configuration } from "oidc-provider";
+
 const { PORT = 3000, CLIENT_PORT = 3001, ISSUER = `http://localhost:${PORT}`, CLIENT_URI = `http://localhost:${CLIENT_PORT}`} = process.env;
 
-export const configuration: any = {
+export const configuration: Configuration = {
   clients: [
     {
       client_id: 'client_id_sample',
@@ -28,6 +30,15 @@ export const configuration: any = {
     devInteractions: { enabled: true }, // defaults to true
     deviceFlow: { enabled: true }, // defaults to false
     revocation: { enabled: true }, // defaults to false
+    introspection: {
+      enabled: true,
+      allowedPolicy: async function introspectionAllowedPolicy(ctx, client, token) {
+        if (client.introspectionEndpointAuthMethod === 'none' && token.clientId !== ctx.oidc.client.clientId) {
+          return false;
+        }
+        return true;
+      }
+    },
   },
   jwks: {
     keys: [

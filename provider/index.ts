@@ -8,7 +8,7 @@ const url = require('url');
 
 const helmet = require('helmet');
 
-const { Provider } = require('oidc-provider');
+import { Provider } from 'oidc-provider';
 
 import { Account } from './support/account'
 import { configuration } from './support/configuration';
