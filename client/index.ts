@@ -29,7 +29,7 @@ passport.deserializeUser(function(id, done) {
 
 (async () => {
   // HACK: providerより先に起動しないように、少し待つ
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  await new Promise((resolve) => setTimeout(resolve, 2000))
 
   // express settings
   app.use(bodyParser.json());
